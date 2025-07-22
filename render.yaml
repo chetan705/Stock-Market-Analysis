@@ -7,9 +7,6 @@ services:
     startCommand: gunicorn wsgi:app
     workingDir: Project/backend
     autoDeploy: true
-    envVars:
-      - key: PYTHON_VERSION
-        value: 3.10
 
   - type: web
     name: stock-predict-frontend
