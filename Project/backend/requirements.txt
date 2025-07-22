@@ -6,4 +6,4 @@ keras==2.11.0
 scikit-learn
 prophet==1.1.2
 yfinance==0.2.18
-gunicorn
+gunicorn==20.1.0
