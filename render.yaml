@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: stock-predict-backend
+    env: python
+    plan: free
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: gunicorn wsgi:app
+    workingDir: backend
+    autoDeploy: true
+
+  - type: web
+    name: stock-predict-frontend
+    env: static
+    staticPublishPath: build
+    buildCommand: cd frontend && npm install && npm run build
+    pullRequestPreviewsEnabled: false
