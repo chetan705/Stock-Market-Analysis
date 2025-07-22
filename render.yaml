@@ -5,12 +5,12 @@ services:
     plan: free
     buildCommand: pip install -r backend/requirements.txt
     startCommand: gunicorn wsgi:app
-    workingDir: backend
+    workingDir: .
     autoDeploy: true
 
   - type: web
     name: stock-predict-frontend
     env: static
-    staticPublishPath: build
-    buildCommand: cd frontend && npm install && npm run build
+    staticPublishPath: frontend
+    buildCommand: ""
     pullRequestPreviewsEnabled: false

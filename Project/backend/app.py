@@ -1,6 +1,7 @@
 from flask import Flask, request
 from flask_cors import CORS
 import glob
+import pandas as pd
 import json
 
 app = Flask("Stock Price Prediction")

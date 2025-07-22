@@ -1,9 +1,9 @@
 Flask==2.3.1
 flask-cors==3.0.10
-prophet==1.1.2
-yfinance==0.2.18
 pandas==1.4.4
 tensorflow==2.9.2
 keras==2.9.0
-scikit-learn  # 'sklearn' should be 'scikit-learn'
+scikit-learn
+prophet==1.1.2
+yfinance==0.2.18
 gunicorn
