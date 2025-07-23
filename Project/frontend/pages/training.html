@@ -152,7 +152,7 @@
                                 type: 'number',
                                 easing: 'linear',
                                 duration: delayBetweenPoints,
-                                from: NaN, // the point is initially skipped
+                                from: NaN,
                                 delay(ctx) {
                                     if (ctx.type !== 'data' || ctx.xStarted) {
                                         return 0;
@@ -227,7 +227,7 @@
                 function checkTrainingStatus() {
                     checkTrainingStatusVar = setInterval(() => {
                         $.ajax({
-                            url: 'https://stock-market-analysis-0whn.onrender.com/trainingStatus',
+                            url: '/api/trainingStatus',
                             method: 'post',
                             success: (res) => {
                                 console.log(res);
@@ -260,7 +260,7 @@
                     formData.append('file', file);
 
                     $.ajax({
-                        url: 'https://stock-market-analysis-0whn.onrender.com/upload',
+                        url: '/api/upload',
                         type: "POST",
                         processData: false,
                         contentType: false,
@@ -270,8 +270,6 @@
                             loadDataset(res);
                         },
                         error: (res)=> {
-                            // console.log(String(e.responseText))
-                            // console.log(JSON.parse(String(e.responseText)));
                             loadDataset(res);
                         }
                     });
@@ -282,7 +280,7 @@
                     $('.trainingProgress .trainingCompleted').hide();
                     
                     $.ajax({
-                        url: 'https://stock-market-analysis-0whn.onrender.com/startTraining',
+                        url: '/api/startTraining',
                         method: "POST",
                         data: {"fileName": $('.fileNameInput').val()},
                         success: (res) => {
@@ -295,7 +293,7 @@
 
                 $(document).ready(() => {
                     $.ajax({
-                        url: 'https://stock-market-analysis-0whn.onrender.com/trainingStatus',
+                        url: '/api/trainingStatus',
                         method: 'post',
                         success: (res) => {
                             if (res.status == "training") {

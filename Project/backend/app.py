@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 import glob
 import pandas as pd
@@ -7,7 +7,7 @@ import os
 from api import getRequiredColumns, LSTMAlgorithm, getPredictonsFromModel, getManualPredictionForModel
 
 app = Flask("Stock Price Prediction")
-CORS(app)
+CORS(app, resources={r"/api/*": {"origins": "*"}})  # Scoped CORS to API routes
 
 df = None
 cols, dateColName, closeColName = None, None, None
@@ -31,11 +31,20 @@ def updateEpochs(epoch):
     global session
     session['training']['epochs'] = epoch + 1
 
-@app.route("/")
+# Serve frontend static files
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def serve_frontend(path):
+    if path != "" and os.path.exists(os.path.join(app.root_path, '../frontend', path)):
+        return send_from_directory('../frontend', path)
+    return send_from_directory('../frontend', 'index.html')
+
+# API routes
+@app.route('/api/', methods=['GET'])
 def index():
     return "Welcome to Stock Price Prediction API"
 
-@app.route("/upload", methods=['POST', 'GET'])
+@app.route('/api/upload', methods=['POST'])
 def upload():
     if request.method == "POST":
         global session, df, cols, dateColName, closeColName
@@ -65,18 +74,15 @@ def upload():
     else:
         return "This API accepts only POST requests"
 
-@app.route("/startTraining", methods=['POST', 'GET'])
+@app.route('/api/startTraining', methods=['POST'])
 def startTraining():
     if request.method == "POST":
         global session, df
 
         fileName = request.form['fileName']
 
-        # Use platform-appropriate path
-        if os.name == 'nt':  # Windows
-            base_path = os.path.join(os.getcwd(), 'datasets')
-        else:  # Render (Linux)
-            base_path = '/opt/render/project/src/datasets'
+        # Use Render disk mounts
+        base_path = '/opt/render/project/src/datasets'
         os.makedirs(base_path, exist_ok=True)
         df.to_csv(os.path.join(base_path, f'{fileName}.csv'), index=False)
 
@@ -90,23 +96,20 @@ def startTraining():
     else:
         return "This API accepts only POST requests"
 
-@app.route("/trainingStatus", methods=['POST', 'GET'])
+@app.route('/api/trainingStatus', methods=['POST'])
 def trainingStatus():
     if request.method == "POST":
         return jsonify(session['training'])
     else:
         return "This API accepts only POST requests"
 
-@app.route("/getPreTrainedModels", methods=['POST', 'GET'])
+@app.route('/api/getPreTrainedModels', methods=['POST'])
 def getPreTrainedModels():
     if request.method == "POST":
         global session
 
-        # Use platform-appropriate path
-        if os.name == 'nt':  # Windows
-            base_path = os.path.join(os.getcwd(), 'pretrained')
-        else:  # Render (Linux)
-            base_path = '/opt/render/project/src/pretrained'
+        # Use Render disk mounts
+        base_path = '/opt/render/project/src/pretrained'
         os.makedirs(base_path, exist_ok=True)
         files = glob.glob(os.path.join(base_path, '*.H5'))
         files = [f.split("/")[-1][:-3] for f in files]
@@ -116,7 +119,7 @@ def getPreTrainedModels():
     else:
         return "This API accepts only POST requests"
 
-@app.route("/getPredictions", methods=['POST', 'GET'])
+@app.route('/api/getPredictions', methods=['POST'])
 def getPredictions():
     if request.method == "POST":
         global session
@@ -131,7 +134,7 @@ def getPredictions():
     else:
         return "This API accepts only POST requests"
 
-@app.route("/getManualPrediction", methods=['POST', 'GET'])
+@app.route('/api/getManualPrediction', methods=['POST'])
 def getManualPrediction():
     if request.method == "POST":
         global session
@@ -150,5 +153,4 @@ def getManualPrediction():
         return "This API accepts only POST requests"
 
 if __name__ == "__main__":
-    print("Starting Flask app on http://127.0.0.1:5000")
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=10000)  # Use for local testing with Render-compatible port

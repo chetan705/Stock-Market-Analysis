@@ -1,11 +1,11 @@
 services:
   - type: web
-    name: stock-predict-backend
+    name: stock-market-analysis
     env: python
     plan: free
-    rootDir: ./Project/backend  # Optional: Run commands from backend directory
+    rootDir: ./Project/backend
     buildCommand: python -m pip install --upgrade pip && pip install -r requirements.txt
-    startCommand: gunicorn app:app
+    startCommand: gunicorn --bind 0.0.0.0:10000 app:app
     autoDeploy: true
     envVars:
       - key: PYTHON_VERSION
@@ -20,11 +20,3 @@ services:
       - name: models
         mountPath: /opt/render/project/src/pretrained
         sizeGB: 1
-  - type: web
-    name: stock-predict-frontend
-    env: static
-    rootDir: ./Project/frontend  # Optional: Run commands from frontend directory
-    staticPublishPath: .
-    buildCommand: ""  # No build required for static site
-    startCommand: static  # Render handles static serving automatically
-    autoDeploy: true

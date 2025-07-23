@@ -143,7 +143,7 @@
                                 type: 'number',
                                 easing: 'linear',
                                 duration: delayBetweenPoints,
-                                from: NaN, // the point is initially skipped
+                                from: NaN,
                                 delay(ctx) {
                                     if (ctx.type !== 'data' || ctx.xStarted) {
                                         return 0;
@@ -221,7 +221,7 @@
                     $('.realPredTable').html('');
 
                     $.ajax({
-                        url: 'https://stock-market-analysis-0whn.onrender.com/getPredictions',
+                        url: '/api/getPredictions',
                         method: 'post',
                         data: {"modelName": modelName},
                         success: (res) => {
@@ -312,7 +312,7 @@
                     }
 
                     $.ajax({
-                        url: 'https://stock-market-analysis-0whn.onrender.com/getManualPrediction',
+                        url: '/api/getManualPrediction',
                         method: 'post',
                         data: {
                             "fileName": fileName,
@@ -340,7 +340,7 @@
                     $('.predictNextDayButton').hide();
 
                     $.ajax({
-                        url: 'https://stock-market-analysis-0whn.onrender.com/getPreTrainedModels',
+                        url: '/api/getPreTrainedModels',
                         method: 'post',
                         success: (res) => {
                             console.log(res);
