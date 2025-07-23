@@ -3,13 +3,15 @@ services:
     name: stock-predict-backend
     env: python
     plan: free
-    buildCommand: python -m pip install --upgrade pip && pip install -r requirements.txt
+    buildCommand: python -m pip install --upgrade pip && pip install -r Project/backend/requirements.txt
     startCommand: gunicorn --chdir Project/backend app:app
     workingDir: Project/backend
     autoDeploy: true
     envVars:
       - key: PYTHON_VERSION
-        value: 3.10.0
+        value: 3.12.3
+      - key: GUNICORN_WORKERS
+        value: 1
     preBuildCommand: apt-get update && apt-get install -y build-essential
     disks:
       - name: data
