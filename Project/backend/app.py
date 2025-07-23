@@ -72,8 +72,8 @@ def startTraining():
 
         fileName = request.form['fileName']
 
-        os.makedirs("datasets", exist_ok=True)
-        df.to_csv(f'datasets/{fileName}.csv', index=False)
+        os.makedirs("/opt/render/project/src/datasets", exist_ok=True)  # Updated path
+        df.to_csv(f'/opt/render/project/src/datasets/{fileName}.csv', index=False)
 
         session['training']['status'] = "training"
         session['training']['epochs'] = 0
@@ -97,8 +97,8 @@ def getPreTrainedModels():
     if request.method == "POST":
         global session
 
-        os.makedirs("pretrained", exist_ok=True)
-        files = glob.glob("pretrained/*.H5")
+        os.makedirs("/opt/render/project/src/pretrained", exist_ok=True)  # Updated path
+        files = glob.glob("/opt/render/project/src/pretrained/*.H5")
         files = [f.split("/")[-1][:-3] for f in files]
 
         session['prediction']['preTrainedModelNames'] = files
