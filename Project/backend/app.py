@@ -72,8 +72,13 @@ def startTraining():
 
         fileName = request.form['fileName']
 
-        os.makedirs("/opt/render/project/src/datasets", exist_ok=True)  # Updated path
-        df.to_csv(f'/opt/render/project/src/datasets/{fileName}.csv', index=False)
+        # Use platform-appropriate path
+        if os.name == 'nt':  # Windows
+            base_path = os.path.join(os.getcwd(), 'datasets')
+        else:  # Render (Linux)
+            base_path = '/opt/render/project/src/datasets'
+        os.makedirs(base_path, exist_ok=True)
+        df.to_csv(os.path.join(base_path, f'{fileName}.csv'), index=False)
 
         session['training']['status'] = "training"
         session['training']['epochs'] = 0
@@ -97,8 +102,13 @@ def getPreTrainedModels():
     if request.method == "POST":
         global session
 
-        os.makedirs("/opt/render/project/src/pretrained", exist_ok=True)  # Updated path
-        files = glob.glob("/opt/render/project/src/pretrained/*.H5")
+        # Use platform-appropriate path
+        if os.name == 'nt':  # Windows
+            base_path = os.path.join(os.getcwd(), 'pretrained')
+        else:  # Render (Linux)
+            base_path = '/opt/render/project/src/pretrained'
+        os.makedirs(base_path, exist_ok=True)
+        files = glob.glob(os.path.join(base_path, '*.H5'))
         files = [f.split("/")[-1][:-3] for f in files]
 
         session['prediction']['preTrainedModelNames'] = files
@@ -138,3 +148,7 @@ def getManualPrediction():
         return jsonify(session['prediction'])
     else:
         return "This API accepts only POST requests"
+
+if __name__ == "__main__":
+    print("Starting Flask app on http://127.0.0.1:5000")
+    app.run(debug=True)
