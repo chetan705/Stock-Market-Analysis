@@ -227,7 +227,7 @@
                 function checkTrainingStatus() {
                     checkTrainingStatusVar = setInterval(() => {
                         $.ajax({
-                            url: 'http://localhost:7676/trainingStatus',
+                            url: 'https://stock-market-analysis-0whn.onrender.com/trainingStatus',
                             method: 'post',
                             success: (res) => {
                                 console.log(res);
@@ -260,7 +260,7 @@
                     formData.append('file', file);
 
                     $.ajax({
-                        url: 'http://localhost:7676/upload',
+                        url: 'https://stock-market-analysis-0whn.onrender.com/upload',
                         type: "POST",
                         processData: false,
                         contentType: false,
@@ -282,7 +282,7 @@
                     $('.trainingProgress .trainingCompleted').hide();
                     
                     $.ajax({
-                        url: 'http://localhost:7676/startTraining',
+                        url: 'https://stock-market-analysis-0whn.onrender.com/startTraining',
                         method: "POST",
                         data: {"fileName": $('.fileNameInput').val()},
                         success: (res) => {
@@ -295,7 +295,7 @@
 
                 $(document).ready(() => {
                     $.ajax({
-                        url: 'http://localhost:7676/trainingStatus',
+                        url: 'https://stock-market-analysis-0whn.onrender.com/trainingStatus',
                         method: 'post',
                         success: (res) => {
                             if (res.status == "training") {
@@ -314,5 +314,3 @@
         </div>
     </body>
 </html>
-
-

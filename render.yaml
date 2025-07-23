@@ -3,9 +3,9 @@ services:
     name: stock-predict-backend
     env: python
     plan: free
-    buildCommand: python -m pip install --upgrade pip && pip install -r Project/backend/requirements.txt
-    startCommand: gunicorn --chdir Project/backend app:app
-    workingDir: Project/backend
+    rootDir: ./Project/backend  # Optional: Run commands from backend directory
+    buildCommand: python -m pip install --upgrade pip && pip install -r requirements.txt
+    startCommand: gunicorn app:app
     autoDeploy: true
     envVars:
       - key: PYTHON_VERSION
@@ -23,6 +23,8 @@ services:
   - type: web
     name: stock-predict-frontend
     env: static
-    staticPublishPath: Project/frontend/build
-    buildCommand: npm install && npm run build
+    rootDir: ./Project/frontend  # Optional: Run commands from frontend directory
+    staticPublishPath: .
+    buildCommand: ""  # No build required for static site
+    startCommand: static  # Render handles static serving automatically
     autoDeploy: true

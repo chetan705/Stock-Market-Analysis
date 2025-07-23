@@ -54,8 +54,7 @@
                     <div class="btn-group selectModel">
                         <button type="button" data-toggle="dropdown" >Select Model</button>
                         <div class="dropdown-menu dropdown-menu-center"></div>
-                    </div>
-                </center>
+                    </center>
                 
                 <center>
                     <div class="container-fluid predictionResults">
@@ -222,7 +221,7 @@
                     $('.realPredTable').html('');
 
                     $.ajax({
-                        url: 'http://localhost:7676/getPredictions',
+                        url: 'https://stock-market-analysis-0whn.onrender.com/getPredictions',
                         method: 'post',
                         data: {"modelName": modelName},
                         success: (res) => {
@@ -313,7 +312,7 @@
                     }
 
                     $.ajax({
-                        url: 'http://localhost:7676/getManualPrediction',
+                        url: 'https://stock-market-analysis-0whn.onrender.com/getManualPrediction',
                         method: 'post',
                         data: {
                             "fileName": fileName,
@@ -341,7 +340,7 @@
                     $('.predictNextDayButton').hide();
 
                     $.ajax({
-                        url: 'http://localhost:7676/getPreTrainedModels',
+                        url: 'https://stock-market-analysis-0whn.onrender.com/getPreTrainedModels',
                         method: 'post',
                         success: (res) => {
                             console.log(res);
@@ -362,5 +361,3 @@
         </div>
     </body>
 </html>
-
-
