@@ -7,7 +7,7 @@ import os
 from api import getRequiredColumns, LSTMAlgorithm, getPredictonsFromModel, getManualPredictionForModel
 
 app = Flask("Stock Price Prediction")
-CORS(app, resources={r"/api/*": {"origins": "*"}})  # Scoped CORS to API routes
+CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 df = None
 cols, dateColName, closeColName = None, None, None
@@ -38,6 +38,11 @@ def serve_frontend(path):
     if path != "" and os.path.exists(os.path.join(app.root_path, '../frontend', path)):
         return send_from_directory('../frontend', path)
     return send_from_directory('../frontend', 'index.html')
+
+# Serve static files (e.g., CSS, JS)
+@app.route('/static/<path:path>')
+def serve_static(path):
+    return send_from_directory(os.path.join(app.root_path, '../frontend/static'), path)
 
 # API routes
 @app.route('/api/', methods=['GET'])
@@ -81,7 +86,6 @@ def startTraining():
 
         fileName = request.form['fileName']
 
-        # Use Render disk mounts
         base_path = '/opt/render/project/src/datasets'
         os.makedirs(base_path, exist_ok=True)
         df.to_csv(os.path.join(base_path, f'{fileName}.csv'), index=False)
@@ -108,7 +112,6 @@ def getPreTrainedModels():
     if request.method == "POST":
         global session
 
-        # Use Render disk mounts
         base_path = '/opt/render/project/src/pretrained'
         os.makedirs(base_path, exist_ok=True)
         files = glob.glob(os.path.join(base_path, '*.H5'))
@@ -153,4 +156,4 @@ def getManualPrediction():
         return "This API accepts only POST requests"
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=10000)  # Use for local testing with Render-compatible port
+    app.run(host='0.0.0.0', port=10000)

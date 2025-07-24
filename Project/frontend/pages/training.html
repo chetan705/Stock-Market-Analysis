@@ -3,16 +3,16 @@
         <title>Stock Price Prediction</title>
 
         <meta charset="utf-8">
-        <link rel="icon" href="../favicon.ico" type="image/gif" sizes="16x16">
+        <link rel="icon" href="/static/favicon.ico" type="image/gif" sizes="16x16">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <link rel="stylesheet" href="../static/bootstrap.min.css">
-        <script src="../static/jquery.min.js"></script>
-        <script src="../static/bootstrap.min.js"></script>
+        <link rel="stylesheet" href="/static/bootstrap.min.css">
+        <script src="/static/jquery.min.js"></script>
+        <script src="/static/bootstrap.min.js"></script>
 
-        <script src="../static/chart.js"></script>
+        <script src="/static/chart.js"></script>
 
-        <link rel="stylesheet" href="../header.css">
+        <link rel="stylesheet" href="/header.css">
 
         <script>
         
@@ -86,7 +86,7 @@
                     <div class="inProgress">
                         <div class="layer">
                             <div class="layerName">Training</div>
-                            <img src="../icons/loading.svg" />
+                            <img src="/static/icons/loading.svg" />
                             <div class="layerDesc">Training</div>
                         </div>
                     </div>
@@ -204,14 +204,12 @@
                         }
                     };
                     
-                    
                     var myChart = new Chart(
                         document.getElementById(chartId),
                         config
                     );
 
                     return myChart;
-                        
                 }
 
                 function loadDataset(res) {
