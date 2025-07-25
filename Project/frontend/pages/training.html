@@ -49,20 +49,23 @@
         <div id="content">
             <link rel="stylesheet" href="./training.css">
 
-            <div class="upload">
-                <button onclick="$('.selectFile').click()">New Training Data</button>
+            <div class="upload text-center mt-4">
+                <button class="btn btn-primary btn-lg upload-btn">New Training Data</button>
                 <input class="selectFile" type="file" />
             </div>
 
             <center>
-                <div class="container-fluid datasetProperties">
+                <div class="container-fluid datasetProperties mt-4">
                     <div class="placeholder">
                         <div class="layer">
                             <div class="layerName">Dataset</div>
-                            <div class="layerDesc">Click on "New Training Data" button to load the dataset</div>
+                            <div class="layerDesc">Click on 'New Training Data' button to load the dataset</div>
                         </div>
                     </div>
-                    <div class="filename">Filename: <input class="fileNameInput" type="text" /></div>
+                    <div class="filename d-flex justify-content-center mb-3">
+                        <label class="mr-2">Filename:</label>
+                        <input class="fileNameInput form-control w-25" type="text" />
+                    </div>
                     <div class="row">
                         <div class="col-sm-7">
                             <div class="dfHead"></div>
@@ -71,29 +74,29 @@
                             <canvas id="closePriceGraph"></canvas>
                         </div>
                     </div>
-                    <button class="startTraining">Start Training</button>
+                    <button class="startTraining btn btn-success btn-lg mt-3">Start Training</button>
                 </div>
             </center>
 
             <center>
-                <div class="container-fluid trainingProgress">
+                <div class="container-fluid trainingProgress mt-4">
                     <div class="placeholder">
                         <div class="layer">
                             <div class="layerName">Training</div>
-                            <div class="layerDesc">Click on "Start Training" button to start the training</div>
+                            <div class="layerDesc">Click on 'Start Training' button to start the training</div>
                         </div>
                     </div>
                     <div class="inProgress">
                         <div class="layer">
                             <div class="layerName">Training</div>
-                            <img src="/static/icons/loading.svg" />
+                            <img src="/icons/loading.svg" />
                             <div class="layerDesc">Training</div>
                         </div>
                     </div>
                     <div class="trainingCompleted">
                         <div class="layer">
                             <div class="layerName">Training Completed</div>
-                            <div class="layerDesc">Now you can see the predictions in "Predictions" tab</div>
+                            <div class="layerDesc">Now you can see the predictions in 'Predictions' tab</div>
                         </div>
                     </div>
                 </div>
@@ -233,6 +236,10 @@
                                 if (res.status != "training") {
                                     stopTrainingStatusCheck();
                                 }
+                            },
+                            error: (xhr, status, error) => {
+                                console.error("Training status check failed:", error);
+                                stopTrainingStatusCheck();
                             }
                         });
                     }, 1000);
@@ -241,55 +248,77 @@
                 function stopTrainingStatusCheck() {
                     clearInterval(checkTrainingStatusVar);
 
-                    $('.trainingProgress .inProgress').hide();
-                    $('.trainingProgress .trainingCompleted').show();
-                }
-
-                $('.selectFile').change(() => {
-                    var file = $('.selectFile')[0].files[0];
-                    var extension = file.name.substring(file.name.lastIndexOf(".")+1);
-
-                    if (extension != "csv") {
-                        alert("Only CSV files are accepted as training data");
-                        return;
-                    }
-
-                    var formData = new FormData();
-                    formData.append('file', file);
-
                     $.ajax({
-                        url: '/api/upload',
-                        type: "POST",
-                        processData: false,
-                        contentType: false,
-                        data: formData,
+                        url: '/api/trainingStatus',
+                        method: 'post',
                         success: (res) => {
                             console.log(res);
-                            loadDataset(res);
-                        },
-                        error: (res)=> {
-                            loadDataset(res);
+                            if (res.status === "trainingCompleted") {
+                                $('.trainingProgress .inProgress').hide();
+                                $('.trainingProgress .trainingCompleted').show();
+                            } else {
+                                $('.trainingProgress .inProgress').hide();
+                                $('.trainingProgress .placeholder').show();
+                            }
                         }
                     });
-                });
-
-                $('.startTraining').click(() => {
-                    $('.trainingProgress .placeholder').hide();
-                    $('.trainingProgress .trainingCompleted').hide();
-                    
-                    $.ajax({
-                        url: '/api/startTraining',
-                        method: "POST",
-                        data: {"fileName": $('.fileNameInput').val()},
-                        success: (res) => {
-                            
-                        }
-                    });
-
-                    checkTrainingStatus();
-                });
+                }
 
                 $(document).ready(() => {
+                    $('.upload-btn').on('click', function() {
+                        $('.selectFile').click();
+                    });
+
+                    $('.selectFile').change(() => {
+                        var file = $('.selectFile')[0].files[0];
+                        var extension = file.name.substring(file.name.lastIndexOf(".")+1);
+
+                        if (extension != "csv") {
+                            alert("Only CSV files are accepted as training data");
+                            return;
+                        }
+
+                        var formData = new FormData();
+                        formData.append('file', file);
+
+                        $.ajax({
+                            url: '/api/upload',
+                            type: "POST",
+                            processData: false,
+                            contentType: false,
+                            data: formData,
+                            success: (res) => {
+                                console.log(res);
+                                loadDataset(res);
+                            },
+                            error: (res) => {
+                                console.error("Upload failed:", res);
+                                $('.datasetProperties .placeholder').show();
+                            }
+                        });
+                    });
+
+                    $('.startTraining').click(() => {
+                        $('.trainingProgress .placeholder').hide();
+                        $('.trainingProgress .trainingCompleted').hide();
+                        
+                        $.ajax({
+                            url: '/api/startTraining',
+                            method: "POST",
+                            data: {"fileName": $('.fileNameInput').val()},
+                            success: (res) => {
+                                console.log(res);
+                            },
+                            error: (xhr, status, error) => {
+                                console.error("Training failed:", error);
+                                $('.trainingProgress .inProgress').hide();
+                                $('.trainingProgress .placeholder').show();
+                            }
+                        });
+
+                        checkTrainingStatus();
+                    });
+
                     $.ajax({
                         url: '/api/trainingStatus',
                         method: 'post',
@@ -308,5 +337,7 @@
                     
             </script>
         </div>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.js"></script>
     </body>
 </html>

@@ -5,38 +5,50 @@ body {
 
 #header {
     position: fixed;
-    height: 50px;
+    height: 60px;
     width: 100%;
     box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
-    background-color: rgb(48, 48, 48);
+    background: linear-gradient(90deg, #1e3c72, #2a5298);
     color: white;
-    z-index: 100;
+    z-index: 1000;
+    transition: all 0.3s ease;
 }
 
 #header .header-title {
-    font-size: 20px;
-    /* font-weight: bold; */
-    padding: 10px;
+    font-size: 24px;
+    font-weight: bold;
+    padding: 15px;
+    color: #fff;
+    transition: color 0.3s ease;
 }
 
 #header .navbar {
     text-align: right;
-    padding: 10px;
+    padding: 15px;
     font-size: 16px;
 }
 
 #header .navbar .nav-item {
-    margin: 0 5px;
+    margin: 0 10px;
     display: inline-block;
-    padding: 2px 5px;
+    padding: 5px 15px;
     cursor: pointer;
+    color: #fff;
+    border-radius: 20px;
+    transition: all 0.3s ease;
 }
+
+#header .navbar .nav-item:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: #fff;
+}
+
 #header .navbar .nav-item.active {
-    background-color: white;
-    color: black;
-    border-radius: 50px;
+    background-color: #fff;
+    color: #1e3c72;
+    font-weight: bold;
 }
 
 #content {
-    padding: 70px 0;
+    padding: 80px 0 20px;
 }

@@ -1,97 +1,367 @@
-.welcomeBanner {
-    position: relative;
-    width: 100%;
-    height: 350px;
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #0f1c3c, #1e3a8a);
+    color: #e0e7f0;
+    overflow-x: hidden;
 }
 
-.welcomeBanner .background {
+#header {
+    position: fixed;
+    height: 80px;
+    width: 100%;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    background: linear-gradient(90deg, #0f1c3c, #1e3a8a);
+    color: #fff;
+    z-index: 1000;
+    transition: all 0.4s ease;
+}
+
+#header:hover {
+    box-shadow: 0 6px 30px rgba(0, 0, 0, 0.5);
+}
+
+#header .header-title {
+    font-size: 28px;
+    font-weight: 600;
+    padding: 22px 20px;
+    color: #fff;
+    transition: color 0.3s ease;
+}
+
+#header .navbar {
+    text-align: right;
+    padding: 22px 20px;
+    font-size: 18px;
+}
+
+#header .navbar .nav-item {
+    margin: 0 15px;
+    display: inline-block;
+    padding: 10px 20px;
+    cursor: pointer;
+    color: #fff;
+    border-radius: 25px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(5px);
+    transition: all 0.4s ease;
+}
+
+#header .navbar .nav-item:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+}
+
+#header .navbar .nav-item.active {
+    background: rgba(255, 255, 255, 0.5);
+    color: #0f1c3c;
+    font-weight: 600;
+}
+
+#content {
+    padding: 100px 0 40px;
+}
+
+.hero-section {
+    position: relative;
+    width: 100%;
+    height: 700px;
+    overflow: hidden;
+    border-radius: 0 0 20px 20px;
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.4);
+}
+
+.hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to top, rgba(15, 28, 60, 0.8), transparent);
+    z-index: 1;
+}
+
+.hero-background {
     position: absolute;
     width: 100%;
     height: 100%;
-    z-index: -1;
+    object-fit: cover;
+    z-index: 0;
+    transition: transform 0.6s ease;
 }
 
-.welcomeBanner .text {
+.hero-section:hover .hero-background {
+    transform: scale(1.1);
+}
+
+.hero-content {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-}
-
-.welcomeBanner .text .title {
-    font-size: 25px;
     text-align: center;
-    color: white;
+    z-index: 2;
+    color: #fff;
 }
 
-.welcomeBanner .text .subtitle {
-    text-align: center;
-    color: white;
+.hero-title {
+    font-size: 64px;
+    font-weight: 700;
+    text-shadow: 4px 4px 20px rgba(0, 0, 0, 0.7);
+    margin-bottom: 20px;
+    color: #e0e7f0;
+    animation: pulse 2s infinite;
 }
 
-.welcomeBanner .companies .icon {
-    position: absolute;
-    width: 150px;
-    opacity: 0.7;
+.hero-subtitle {
+    font-size: 28px;
+    text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);
+    margin-bottom: 30px;
+    color: #d1d9e6;
 }
 
-/* .welcomeBanner .companies .google {
-    top: 10%;
-    left: 30%;
+.hero-btn {
+    background: linear-gradient(45deg, #4a90e2, #2e6eb4);
+    border: none;
+    padding: 18px 50px;
+    font-size: 22px;
+    color: #fff;
+    border-radius: 40px;
+    transition: all 0.5s ease;
+    box-shadow: 0 6px 25px rgba(74, 144, 226, 0.6);
+    backdrop-filter: blur(10px);
 }
 
-.welcomeBanner .companies .microsoft {
-    top: 60%;
-    left: 20%;
+.hero-btn:hover {
+    background: linear-gradient(45deg, #2e6eb4, #4a90e2);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 35px rgba(74, 144, 226, 0.8);
 }
 
-.welcomeBanner .companies .nifty50 {
-    top: 10%;
-    left: 60%;
+.about-project-section, .about-me-section, .featured-stocks-section {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    margin: 50px auto;
+    max-width: 1400px;
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.welcomeBanner .companies .reliance {
-    width: 100px;
-    top: 57%;
-    left: 70%;
+.section-title {
+    font-size: 36px;
+    color: #4a90e2;
+    font-weight: 600;
+    margin-bottom: 40px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-shadow: 0 0 10px rgba(74, 144, 226, 0.3);
 }
 
-.welcomeBanner .companies .apple {
-    width: 50px;
-    top: 74%;
-    left: 48%;
-} */
-
-.SomeStocks {
-    margin-top: 40px;
+.glass-card {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    padding: 30px;
+    transition: all 0.4s ease;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
 }
 
-.SomeStocks .title {
-    text-align: center;
-    font-size: 20px;
+.glass-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 50px rgba(0, 0, 0, 0.3);
 }
 
-.SomeStocks .icon {
-    width: 100%;
-    padding: 0 70px;
+.card-header {
+    border-radius: 10px 10px 0 0;
+    padding: 15px 25px;
+    margin: -30px -30px 25px -30px;
+    backdrop-filter: blur(5px);
+}
+
+.bg-gradient-primary {
+    background: linear-gradient(45deg, #4a90e2, #2e6eb4);
+}
+
+.bg-gradient-success {
+    background: linear-gradient(45deg, #28a745, #1f7a38);
+}
+
+.card-header h3 {
+    font-size: 26px;
+    margin: 0;
+    color: #fff;
+}
+
+.intro-text {
+    font-size: 18px;
+    color: #d1d9e6;
+    margin-bottom: 20px;
+}
+
+.accordion {
     margin-top: 20px;
 }
 
-.SomeStocks .google {
-    margin-top: 25px;
-    padding: 0 80px;
+.accordion-item {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    margin-bottom: 10px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    cursor: pointer;
 }
 
-.SomeStocks .microsoft {
-    margin-top: 30px;
+.accordion-item.active {
+    background: rgba(255, 255, 255, 0.15);
 }
 
-.SomeStocks .nifty50 {
-    margin-top: 30px;
-    padding: 0 95px;
+.accordion-header {
+    padding: 15px;
+    font-size: 18px;
+    color: #4a90e2;
+    font-weight: 500;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.SomeStocks .reliance {
-    margin-top: 30px;
-    padding: 0 110px;
+.accordion-content {
+    padding: 15px;
+    display: none;
+    color: #b0c4de;
+}
+
+.tech-list, .skill-list, .feature-list {
+    list-style: none;
+    padding-left: 0;
+}
+
+.tech-list li, .skill-list li, .feature-list li {
+    font-size: 16px;
+    margin-bottom: 10px;
+    color: #b0c4de;
+}
+
+.tech-list li strong, .skill-list li strong, .feature-list li strong {
+    color: #4a90e2;
+}
+
+.focus-text {
+    font-size: 16px;
+    color: #d1d9e6;
+    margin-top: 20px;
+}
+
+.social-links .btn-outline-light {
+    padding: 12px 30px;
+    font-size: 16px;
+    transition: all 0.4s ease;
+    border-radius: 30px;
+    border-color: rgba(255, 255, 255, 0.3);
+    color: #fff;
+}
+
+.social-links .btn-outline-light:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: translateY(-2px);
+}
+
+.stock-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 25px;
+}
+
+.stock-card {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    padding: 20px;
+    text-align: center;
+    transition: all 0.4s ease;
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.2);
+    width: 160px;
+    height: 220px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.stock-card:hover {
+    transform: scale(1.1);
+    box-shadow: 0 8px 35px rgba(0, 0, 0, 0.3);
+}
+
+.stock-image {
+    width: 120px;
+    height: 120px;
+    object-fit: contain;
+    margin-bottom: 15px;
+    transition: transform 0.3s ease;
+}
+
+.stock-card:hover .stock-image {
+    transform: rotate(10deg);
+}
+
+.stock-name {
+    font-size: 20px;
+    color: #4a90e2;
+    margin: 0;
+    font-weight: 600;
+    text-shadow: 0 0 5px rgba(74, 144, 226, 0.3);
+}
+
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 40px;
+    }
+    .hero-subtitle {
+        font-size: 20px;
+    }
+    .hero-btn {
+        font-size: 18px;
+        padding: 12px 35px;
+    }
+    .section-title {
+        font-size: 28px;
+    }
+    .glass-card {
+        padding: 20px;
+    }
+    .card-header h3 {
+        font-size: 22px;
+    }
+    .stock-card {
+        width: 130px;
+        height: 190px;
+    }
+    .stock-image {
+        width: 90px;
+        height: 90px;
+    }
+    .stock-name {
+        font-size: 18px;
+    }
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+@keyframes zoomIn {
+    from {
+        opacity: 0;
+        transform: scale(0.5);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
 }

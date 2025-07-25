@@ -119,8 +119,6 @@ def LMS(df, pred_col, next_days, epochs, updateEpochs):
     x = inverse_scalar(ndf, omax, omin, 1000, 2000)
     y = inverse_scalar(y, omax, omin, 1000, 2000)
 
-    # plotGraph(cols=[x, y], title=pred_col, colors=['black', 'red'])
-
     json = {
         "inputs": x,
         "outputs": y,
@@ -144,31 +142,32 @@ warnings.filterwarnings('ignore')
 
 os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 
-def LSTMAlgorithm(fileName, train_size, epochs, updateEpochs):
-    df = pd.read_csv('./datasets/' + fileName + '.csv')
-    cols, dateColName, trade_close_col = getRequiredColumns(df)
+def LSTMAlgorithm(df, fileName, train_size, epochs, updateEpochs):
+    # Preprocess to handle commas in numeric strings
+    for column in df.columns:
+        if df[column].dtype == 'object':  # Check if column contains strings
+            df[column] = df[column].str.replace(',', '').astype(float, errors='ignore')
 
+    cols, dateColName, trade_close_col = getRequiredColumns(df)
 
     scaling_data_frame = df.filter(cols)
 
     scaler = MinMaxScaler(feature_range=(0,1))
     scaled_Data = scaler.fit_transform(scaling_data_frame)
-    scaled_data_frame = pd.DataFrame(data=scaled_Data, index=[df[trade_close_col]], columns=cols)
+    scaled_data_frame = pd.DataFrame(data=scaled_Data, index=df.index, columns=cols)
 
     stock_close_data = df.filter([trade_close_col])
     stock_close_dataset = stock_close_data.values
 
-    # trainingDataLength = math.ceil( len(stock_close_dataset) * train_size )
-    trainingDataLength = len(stock_close_dataset)
+    trainingDataLength = math.ceil(len(stock_close_dataset) * train_size)
 
     scaler = MinMaxScaler(feature_range=(0,1))
     scaledData = scaler.fit_transform(stock_close_dataset)
 
-    StockTrainData = scaledData[0:trainingDataLength , :]
+    StockTrainData = scaledData[0:trainingDataLength, :]
 
     Xtrain = []
     Ytrain = []
-
 
     for i in range(60, len(StockTrainData)):
         Xtrain.append(StockTrainData[i-60:i, 0])
@@ -178,24 +177,14 @@ def LSTMAlgorithm(fileName, train_size, epochs, updateEpochs):
     Ytrain = np.array(Ytrain)
 
     Xtrain = np.reshape(Xtrain, (Xtrain.shape[0], Xtrain.shape[1], 1))
-    # testingData = scaledData[trainingDataLength - 60: , :]
 
-    # Xtest = []
-    # Ytest = stock_close_dataset[trainingDataLength:, :]
-    # for i in range(60, len(testingData)):
-    #   Xtest.append(testingData[i-60:i, 0])
-
-    # Xtest = np.array(Xtest)
-    # Xtest = np.reshape(Xtest, (Xtest.shape[0], Xtest.shape[1], 1))
-
-
-    print("\n\nLSTM Algorithm for "+str(epochs)+" epochs")
+    print("\n\nLSTM Algorithm for " + str(epochs) + " epochs")
 
     neurons = 50
     
     model = Sequential()
 
-    model.add(LSTM(neurons, return_sequences=True, input_shape= (Xtrain.shape[1], 1)))
+    model.add(LSTM(neurons, return_sequences=True, input_shape=(Xtrain.shape[1], 1)))
     model.add(LSTM(neurons, return_sequences=False)) 
 
     model.add(Dense(25)) 
@@ -208,52 +197,45 @@ def LSTMAlgorithm(fileName, train_size, epochs, updateEpochs):
                             verbose=0, callbacks=[EpochPrintingCallback(updateEpochs=updateEpochs)])
     print("Saving Model--------------------------------------------->")
     
-    model.save('pretrained/' + fileName + ".h5")
-
-    # predictions = model.predict(Xtest)
-    # predictions = scaler.inverse_transform(predictions)
-
-    # training = stock_close_data[:trainingDataLength]
-    # validation = pd.DataFrame(df[trade_close_col][trainingDataLength:], columns=['Close'])
-
-    # validation['Predictions'] = predictions
-
-
-    # real = validation['Close'].values
-    # pred = validation['Predictions'].values
-    # n = len(pred)
-
-    # accuracy = 0
-    # for i in range(n):
-    #     accuracy += (abs(real[i] - pred[i])/real[i])*100
-
-    # print('For', epochs, "epochs")
-    # print("Accuracy:", 100 - accuracy/n, end='\n\n')
+    local_pretrained_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'pretrained')
+    os.makedirs(local_pretrained_path, exist_ok=True)
+    model.save(os.path.join(local_pretrained_path, f'{fileName}.h5'))
 
     return model
 
 
 def getPredictonsFromModel(fileName, train_size):
-    df = pd.read_csv('./datasets/' + fileName + '.csv')
+    local_dataset_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'datasets')
+    df = pd.read_csv(os.path.join(local_dataset_path, f'{fileName}.csv'))
+    
+    # Preprocess to handle commas in numeric strings
+    for column in df.columns:
+        if df[column].dtype == 'object':
+            df[column] = df[column].str.replace(',', '').astype(float, errors='ignore')
+
     cols, dateColName, trade_close_col = getRequiredColumns(df)
 
-    model = tf.keras.models.load_model('./pretrained/' + fileName + '.h5')
+    if not trade_close_col or len(cols) < 5:  # Ensure required columns exist
+        return {"error": "Invalid dataset: Missing required columns (date, open, high, low, close, volume)"}
+
+    local_pretrained_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'pretrained')
+    model = tf.keras.models.load_model(os.path.join(local_pretrained_path, f'{fileName}.h5'))
 
     scaling_data_frame = df.filter(cols)
 
     scaler = MinMaxScaler(feature_range=(0,1))
     scaled_Data = scaler.fit_transform(scaling_data_frame)
-    scaled_data_frame = pd.DataFrame(data=scaled_Data, index=[df[trade_close_col]], columns=cols)
+    scaled_data_frame = pd.DataFrame(data=scaled_Data, index=df.index, columns=cols)
 
     stock_close_data = df.filter([trade_close_col])
     stock_close_dataset = stock_close_data.values
 
-    trainingDataLength = math.ceil( len(stock_close_dataset) * train_size )
+    trainingDataLength = math.ceil(len(stock_close_dataset) * train_size)
 
     scaler = MinMaxScaler(feature_range=(0,1))
     scaledData = scaler.fit_transform(stock_close_dataset)
 
-    StockTrainData = scaledData[0:trainingDataLength , :]
+    StockTrainData = scaledData[0:trainingDataLength, :]
 
     Xtrain = []
     Ytrain = []
@@ -266,7 +248,7 @@ def getPredictonsFromModel(fileName, train_size):
     Ytrain = np.array(Ytrain)
 
     Xtrain = np.reshape(Xtrain, (Xtrain.shape[0], Xtrain.shape[1], 1))
-    testingData = scaledData[trainingDataLength - 60: , :]
+    testingData = scaledData[trainingDataLength - 60:, :]
 
     Xtest = []
     Ytest = stock_close_dataset[trainingDataLength:, :]
@@ -274,19 +256,21 @@ def getPredictonsFromModel(fileName, train_size):
         Xtest.append(testingData[i-60:i, 0])
 
     Xtest = np.array(Xtest)
+    if len(Xtest) == 0:
+        return {"error": "Insufficient data for prediction: Dataset too small or training split too large"}
+
     Xtest = np.reshape(Xtest, (Xtest.shape[0], Xtest.shape[1], 1))
 
-
-    # predictions
-
     predictions = model.predict(Xtest)
-    predictions = scaler.inverse_transform(predictions)
+    predictions = scaler.inverse_transform(predictions).flatten()  # Flatten the 2D array to 1D
 
     training = stock_close_data[:trainingDataLength]
-    validation = pd.DataFrame(df[trade_close_col][trainingDataLength:], columns=['Close'])
+    validation = pd.DataFrame(df[trade_close_col][trainingDataLength:], columns=['Close'], index=df.index[trainingDataLength:])
+
+    if len(predictions) != len(validation):
+        return {"error": f"Prediction length mismatch: Expected {len(validation)} predictions, got {len(predictions)}"}
 
     validation['Predictions'] = predictions
-
 
     real = validation['Close'].values
     pred = validation['Predictions'].values
@@ -296,9 +280,7 @@ def getPredictonsFromModel(fileName, train_size):
     for i in range(n):
         accuracy += (abs(real[i] - pred[i])/real[i])*100
 
-    # print('For', epochs, "epochs")
     accuracyPercentage = 100 - accuracy/n
-    # print("Accuracy:", , end='\n\n')
 
     trainingDates = df[dateColName].iloc[:trainingDataLength]
     trainingDates = list(trainingDates.values)
@@ -330,7 +312,14 @@ def getPredictonsFromModel(fileName, train_size):
 
 
 def getManualPredictionForModel(fileName, train_size, openValue, highValue, lowValue, volumeValue):
-    df = pd.read_csv('./datasets/' + fileName + '.csv')
+    local_dataset_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'datasets')
+    df = pd.read_csv(os.path.join(local_dataset_path, f'{fileName}.csv'))
+    
+    # Preprocess to handle commas in numeric strings
+    for column in df.columns:
+        if df[column].dtype == 'object':
+            df[column] = df[column].str.replace(',', '').astype(float, errors='ignore')
+
     cols, dateColName, trade_close_col = getRequiredColumns(df)
 
     close_idx = -1
@@ -344,35 +333,33 @@ def getManualPredictionForModel(fileName, train_size, openValue, highValue, lowV
         else: row.append(0)
     df.loc[df.shape[0]] = row
 
-
-    model = tf.keras.models.load_model('./pretrained/' + fileName + '.h5')
+    local_pretrained_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'pretrained')
+    model = tf.keras.models.load_model(os.path.join(local_pretrained_path, f'{fileName}.h5'))
 
     scaling_data_frame = df.filter(cols)
 
     scaler = MinMaxScaler(feature_range=(0,1))
     scaled_Data = scaler.fit_transform(scaling_data_frame)
-    scaled_data_frame = pd.DataFrame(data=scaled_Data, index=[df[trade_close_col]], columns=cols)
+    scaled_data_frame = pd.DataFrame(data=scaled_Data, index=df.index, columns=cols)
 
     stock_close_data = df.filter([trade_close_col])
     stock_close_dataset = stock_close_data.values
 
-    trainingDataLength = math.ceil( len(stock_close_dataset) * train_size )-1
+    trainingDataLength = math.ceil(len(stock_close_dataset) * train_size) - 1
 
     scaler = MinMaxScaler(feature_range=(0,1))
     scaledData = scaler.fit_transform(stock_close_dataset)
 
-    testingData = scaledData[trainingDataLength - 60: , :]
+    testingData = scaledData[trainingDataLength - 60:, :]
 
     Xtest = []
-    for i in range(60, len(testingData)+1):
+    for i in range(60, len(testingData) + 1):
         Xtest.append(testingData[i-60:i, 0])
 
     Xtest = np.array(Xtest)
     Xtest = np.reshape(Xtest, (Xtest.shape[0], Xtest.shape[1], 1))
-    # predictions
 
     predictions = model.predict(Xtest)
     predictions = scaler.inverse_transform(predictions)
-
 
     return predictions[-1][0]

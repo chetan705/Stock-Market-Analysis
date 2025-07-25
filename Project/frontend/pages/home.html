@@ -3,19 +3,17 @@
         <title>Stock Price Prediction</title>
 
         <meta charset="utf-8">
-        <link rel="icon" href="../favicon.ico" type="image/gif" sizes="16x16">
+        <link rel="icon" href="../static/favicon.ico" type="image/gif" sizes="16x16">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
         <link rel="stylesheet" href="../static/bootstrap.min.css">
         <script src="../static/jquery.min.js"></script>
         <script src="../static/bootstrap.min.js"></script>
 
-        <script src="../static/chart.js"></script>
-
         <link rel="stylesheet" href="../header.css">
+        <link rel="stylesheet" href="./home.css">
 
         <script>
-        
             var pages = {
                 "home": "home.html",
                 "training": "training.html",
@@ -26,7 +24,13 @@
                 var page = e.getAttribute("page");
                 window.location = pages[page];
             }
-        
+
+            $(document).ready(function() {
+                $('.accordion-item').on('click', function() {
+                    $(this).toggleClass('active');
+                    $(this).find('.accordion-content').slideToggle(300);
+                });
+            });
         </script>
 
     </head>
@@ -47,25 +51,113 @@
         </div>
 
         <div id="content">
-            <link rel="stylesheet" href="./home.css">
-
-            <div class="welcomeBanner">
-                <img class="background" src="../icons/background.jpg" />
-                <div class="text">
-                    <div class="title">Stock Price Prediction</div>
-                    <div class="subtitle">A place for better predictions</div>
+            <div class="hero-section">
+                <div class="hero-overlay"></div>
+                <img class="hero-background" src="../icons/background.jpg" alt="Stock Market Background" />
+                <div class="hero-content animate__animated animate__fadeInUp">
+                    <h1 class="hero-title">Stock Price Prediction</h1>
+                    <p class="hero-subtitle">Revolutionize Investing with AI Precision</p>
+                    <a href="#" onclick="changePage(this)" page="training" class="btn btn-custom hero-btn">Launch Platform</a>
                 </div>
             </div>
 
-            <div class="container-fluid someStocks">
-                <div class="title">Some Stocks</div>
-                <div class="row">
-                    <div class="col-sm-3"><img class="google icon" src="../icons/companies/google.png" /></div>
-                    <div class="col-sm-3"><img class="microsoft icon" src="../icons/companies/microsoft.png" /></div>
-                    <div class="col-sm-3"><img class="nifty50 icon" src="../icons/companies/nifty50.png" /></div>
-                    <div class="col-sm-3"><img class="reliance icon" src="../icons/companies/reliance.png" /></div>
+            <div class="container-fluid about-project-section py-5">
+                <h2 class="section-title text-center">About the Project</h2>
+                <div class="row justify-content-center">
+                    <div class="col-md-10">
+                        <div class="glass-card animate__animated animate__zoomIn">
+                            <div class="card-header bg-gradient-primary">
+                                <h3>Project Vision</h3>
+                            </div>
+                            <div class="card-body">
+                                <p class="intro-text">This platform harnesses the power of artificial intelligence to predict stock prices with unparalleled accuracy, designed for investors seeking a competitive edge.</p>
+                                <div class="accordion">
+                                    <div class="accordion-item">
+                                        <div class="accordion-header">Explore Tech Stack</div>
+                                        <div class="accordion-content">
+                                            <ul class="tech-list">
+                                                <li><strong>Frontend:</strong> HTML5, CSS3, Bootstrap, JavaScript</li>
+                                                <li><strong>Backend:</strong> Python (Flask), RESTful APIs</li>
+                                                <li><strong>AI Engine:</strong> TensorFlow (RNN/LSTM), scikit-learn</li>
+                                                <li><strong>Data Handling:</strong> Pandas, NumPy</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="accordion-item">
+                                        <div class="accordion-header">Key Features</div>
+                                        <div class="accordion-content">
+                                            <ul class="feature-list">
+                                                <li><strong>Real-time Stock Data Integration:</strong> Seamlessly connects to live market feeds, updating stock data in real-time to provide the latest insights for accurate predictions, ensuring you’re always ahead of the curve.</li>
+                                                <li><strong>Custom Dataset Uploads for Training:</strong> Allows users to upload their own CSV datasets, which the platform processes and uses to train the AI model, tailoring predictions to specific stocks or portfolios with customizable parameters.</li>
+                                                <li><strong>Interactive Prediction Visualizations:</strong> Displays predictions through dynamic charts and graphs, enabling users to explore trends, compare scenarios, and adjust variables interactively for a deeper understanding of market movements.</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="container-fluid about-me-section py-5">
+                <h2 class="section-title text-center">About Me</h2>
+                <div class="row justify-content-center">
+                    <div class="col-md-10">
+                        <div class="glass-card animate__animated animate__zoomIn" style="animation-delay: 0.2s">
+                            <div class="card-header bg-gradient-success">
+                                <h3>My Profile</h3>
+                            </div>
+                            <div class="card-body">
+                                <p class="intro-text">I’m Chetan, a motivated Full-Stack Developer with a growing passion for DevOps and cloud computing. With a strong foundation in both frontend and backend development, I specialize in building scalable, secure, and performance-driven web applications.</p>
+                                <ul class="skill-list">
+                                    <li><strong>Frontend:</strong> HTML, CSS, Bootstrap, React.js</li>
+                                    <li><strong>Backend:</strong> Node.js, Express.js, PHP, REST APIs</li>
+                                    <li><strong>Databases:</strong> MySQL, MongoDB</li>
+                                    <li><strong>DevOps & Cloud:</strong> Docker, Jenkins, Terraform, Ansible, AWS (EC2, S3, RDS, IAM, Lambda, Route 53, VPC)</li>
+                                </ul>
+                                <p class="focus-text">I thrive at the intersection of development, DevOps, and cloud architecture, bringing a problem-solving mindset and a commitment to continuous learning. Let’s connect to build impactful solutions!</p>
+                                <div class="social-links text-center mt-4">
+                                    <a href="https://www.linkedin.com/in/chetansharma20/" target="_blank" class="btn btn-outline-light">LinkedIn</a>
+                                    <a href="https://github.com/chetan705" target="_blank" class="btn btn-outline-light ml-3">GitHub</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="container-fluid featured-stocks-section py-5">
+                <h2 class="section-title text-center">Featured Stocks</h2>
+                <div class="row justify-content-center stock-grid">
+                    <div class="col-6 col-sm-4 col-md-2 mb-4">
+                        <div class="stock-card animate__animated animate__pulse">
+                            <img class="stock-image" src="../icons/companies/google.png" alt="Google" />
+                            <p class="stock-name">Google</p>
+                        </div>
+                    </div>
+                    <div class="col-6 col-sm-4 col-md-2 mb-4">
+                        <div class="stock-card animate__animated animate__pulse" style="animation-delay: 0.2s">
+                            <img class="stock-image" src="../icons/companies/microsoft.png" alt="Microsoft" />
+                            <p class="stock-name">Microsoft</p>
+                        </div>
+                    </div>
+                    <div class="col-6 col-sm-4 col-md-2 mb-4">
+                        <div class="stock-card animate__animated animate__pulse" style="animation-delay: 0.4s">
+                            <img class="stock-image" src="../icons/companies/nifty50.png" alt="Nifty 50" />
+                            <p class="stock-name">Nifty 50</p>
+                        </div>
+                    </div>
+                    <div class="col-6 col-sm-4 col-md-2 mb-4">
+                        <div class="stock-card animate__animated animate__pulse" style="animation-delay: 0.6s">
+                            <img class="stock-image" src="../icons/companies/reliance.png" alt="Reliance" />
+                            <p class="stock-name">Reliance</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.js"></script>
     </body>
 </html>

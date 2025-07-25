@@ -3,10 +3,12 @@ from flask_cors import CORS
 import glob
 import pandas as pd
 import os
+import tempfile
 
 from api import getRequiredColumns, LSTMAlgorithm, getPredictonsFromModel, getManualPredictionForModel
 
-app = Flask("Stock Price Prediction")
+# Configure Flask app with custom static folder
+app = Flask("Stock Price Prediction", static_folder='../frontend/static')
 CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 df = None
@@ -19,7 +21,8 @@ session = {
         "status": "ready",
         "fileUploaded": False,
         "fileName": None,
-        "totalEpochs": totalEpochs
+        "totalEpochs": totalEpochs,
+        "tempFilePath": None
     },
     "prediction": {
         "status": "ready",
@@ -31,18 +34,13 @@ def updateEpochs(epoch):
     global session
     session['training']['epochs'] = epoch + 1
 
-# Serve frontend static files
+# Serve frontend pages
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
 def serve_frontend(path):
     if path != "" and os.path.exists(os.path.join(app.root_path, '../frontend', path)):
         return send_from_directory('../frontend', path)
     return send_from_directory('../frontend', 'index.html')
-
-# Serve static files (e.g., CSS, JS)
-@app.route('/static/<path:path>')
-def serve_static(path):
-    return send_from_directory(os.path.join(app.root_path, '../frontend/static'), path)
 
 # API routes
 @app.route('/api/', methods=['GET'])
@@ -54,7 +52,8 @@ def upload():
     if request.method == "POST":
         global session, df, cols, dateColName, closeColName
 
-        df = pd.read_csv(request.files['file'])
+        file = request.files['file']
+        df = pd.read_csv(file)
         df = df.dropna()
         
         cols, dateColName, closeColName = getRequiredColumns(df)
@@ -69,11 +68,16 @@ def upload():
             dfDateVals.append(row[0])
 
         session['training']['fileUploaded'] = True
-        session['training']['fileName'] = request.files['file'].filename[:-4]
+        session['training']['fileName'] = file.filename[:-4]
         session['training']['cols'] = [dateColName] + cols
         session['training']['dfColVals'] = dfColVals
         session['training']['dfCloseVals'] = dfCloseVals
         session['training']['dfDateVals'] = dfDateVals
+        
+        # Save temporary file
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.csv') as temp_file:
+            df.to_csv(temp_file.name, index=False)
+            session['training']['tempFilePath'] = temp_file.name
         
         return jsonify(session['training'])
     else:
@@ -85,17 +89,32 @@ def startTraining():
         global session, df
 
         fileName = request.form['fileName']
-
-        base_path = '/opt/render/project/src/datasets'
-        os.makedirs(base_path, exist_ok=True)
-        df.to_csv(os.path.join(base_path, f'{fileName}.csv'), index=False)
+        tempFilePath = session['training']['tempFilePath']
+        local_dataset_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'datasets')
+        local_pretrained_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'pretrained')
 
         session['training']['status'] = "training"
         session['training']['epochs'] = 0
 
-        model = LSTMAlgorithm(fileName, train_size, totalEpochs, updateEpochs=updateEpochs)
+        try:
+            # Load DataFrame from temporary file
+            df = pd.read_csv(tempFilePath)
+            model = LSTMAlgorithm(df, fileName, train_size, totalEpochs, updateEpochs=updateEpochs)
+            os.makedirs(local_dataset_path, exist_ok=True)
+            df.to_csv(os.path.join(local_dataset_path, f'{fileName}.csv'), index=False)
+            os.makedirs(local_pretrained_path, exist_ok=True)
+            model.save(os.path.join(local_pretrained_path, f'{fileName}.h5'))
+            session['training']['status'] = "trainingCompleted"
+            # Clean up temporary file
+            os.unlink(tempFilePath)
+            session['training']['tempFilePath'] = None
+        except Exception as e:
+            session['training']['status'] = "trainingFailed"
+            print(f"Training failed: {str(e)}")
+            if os.path.exists(tempFilePath):
+                os.unlink(tempFilePath)
+            return jsonify(session['training']), 500
 
-        session['training']['status'] = "trainingCompleted"
         return jsonify(session['training'])
     else:
         return "This API accepts only POST requests"
@@ -111,12 +130,12 @@ def trainingStatus():
 def getPreTrainedModels():
     if request.method == "POST":
         global session
-
-        base_path = '/opt/render/project/src/pretrained'
-        os.makedirs(base_path, exist_ok=True)
-        files = glob.glob(os.path.join(base_path, '*.H5'))
-        files = [f.split("/")[-1][:-3] for f in files]
-
+        local_dataset_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'datasets')
+        print(f"Checking trained datasets in: {local_dataset_path}")
+        os.makedirs(local_dataset_path, exist_ok=True)
+        files = glob.glob(os.path.join(local_dataset_path, '*.csv'))
+        files = [os.path.basename(f)[:-4] for f in files]  # Extract only the filename without .csv
+        print(f"Found files: {files}")
         session['prediction']['preTrainedModelNames'] = files
         return jsonify(session['prediction'])
     else:
