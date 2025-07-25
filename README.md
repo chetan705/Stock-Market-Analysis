@@ -93,5 +93,3 @@ Let’s build something impactful together! Feel free to reach out with question
 - **Prediction Issue**: Mentioned in the Features and Future Improvements sections as a known issue to address later.
 - **Setup**: Instructions assume a standard Flask structure; adjust paths or commands if your setup differs.
 - **File Placement**: Save this as `README.md` in your project root. Ensure `requirements.txt` and other files are present or created as noted.
-
-Run `python3 app.py` to verify locally, and the README will shine on GitHub or your project directory.
