@@ -13,8 +13,8 @@ body {
 .upload-btn {
     background: linear-gradient(45deg, #1e3c72, #2a5298);
     border: none;
-    padding: 12px 30px;
-    font-size: 18px;
+    padding: 0.75rem 2rem;
+    font-size: 1.125rem;
     color: #fff;
     transition: all 0.3s ease;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
@@ -33,14 +33,14 @@ body {
 
 .datasetProperties {
     position: relative;
-    margin: 20px auto;
+    margin: 1.5rem auto;
     width: 90%;
     max-width: 1200px;
-    height: 450px;
+    min-height: 350px;
     background: #fff;
     border-radius: 10px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    padding: 20px;
+    padding: 1.5rem;
     transition: all 0.3s ease;
 }
 
@@ -49,7 +49,7 @@ body {
 }
 
 .datasetProperties .filename {
-    margin-top: 15px;
+    margin-top: 1rem;
     color: #1e3c72;
 }
 
@@ -58,10 +58,12 @@ body {
     border-bottom: 2px solid #1e3c72;
     outline: none;
     text-align: center;
-    font-size: 16px;
+    font-size: 1rem;
     background: transparent;
     color: #333;
     transition: border-color 0.3s ease;
+    width: 100%;
+    max-width: 300px;
 }
 
 .datasetProperties .filename .fileNameInput:focus {
@@ -70,9 +72,9 @@ body {
 
 .datasetProperties .dfHead {
     text-align: center;
-    margin-top: 20px;
+    margin-top: 1.5rem;
     width: 100%;
-    height: 250px;
+    max-height: 250px;
     overflow-y: auto;
     border: 1px solid #eee;
     border-radius: 5px;
@@ -80,7 +82,7 @@ body {
 }
 
 .datasetProperties .dfHead .table {
-    font-size: 14px;
+    font-size: 0.9rem;
     width: 100%;
     color: #333;
 }
@@ -103,7 +105,7 @@ body {
 }
 
 #closePriceGraph {
-    margin-top: 20px;
+    margin-top: 1.5rem;
     border-radius: 5px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     width: 100%;
@@ -113,8 +115,8 @@ body {
 .datasetProperties .startTraining {
     background: linear-gradient(45deg, #4CAF50, #45a049);
     border: none;
-    padding: 12px 30px;
-    font-size: 18px;
+    padding: 0.75rem 2rem;
+    font-size: 1.125rem;
     color: #fff;
     transition: all 0.3s ease;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
@@ -145,31 +147,31 @@ body {
 .datasetProperties .placeholder .layer {
     text-align: center;
     background: rgba(0, 0, 0, 0.7);
-    padding: 20px;
+    padding: 1.5rem;
     border-radius: 10px;
     color: #fff;
 }
 
 .datasetProperties .placeholder .layerName {
-    font-size: 28px;
-    margin-bottom: 10px;
+    font-size: 1.75rem;
+    margin-bottom: 0.75rem;
 }
 
 .datasetProperties .placeholder .layerDesc {
-    font-size: 16px;
+    font-size: 1rem;
     color: rgba(255, 255, 255, 0.8);
 }
 
 .trainingProgress {
     position: relative;
-    margin: 20px auto;
+    margin: 1.5rem auto;
     width: 90%;
     max-width: 1200px;
-    height: 450px;
+    min-height: 350px;
     background: #fff;
     border-radius: 10px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    padding: 20px;
+    padding: 1.5rem;
     transition: all 0.3s ease;
 }
 
@@ -195,18 +197,18 @@ body {
 .trainingProgress .placeholder .layer {
     text-align: center;
     background: rgba(0, 0, 0, 0.7);
-    padding: 20px;
+    padding: 1.5rem;
     border-radius: 10px;
     color: #fff;
 }
 
 .trainingProgress .placeholder .layerName {
-    font-size: 28px;
-    margin-bottom: 10px;
+    font-size: 1.75rem;
+    margin-bottom: 0.75rem;
 }
 
 .trainingProgress .placeholder .layerDesc {
-    font-size: 16px;
+    font-size: 1rem;
     color: rgba(255, 255, 255, 0.8);
 }
 
@@ -228,18 +230,18 @@ body {
 .trainingProgress .inProgress .layer {
     text-align: center;
     background: rgba(0, 0, 0, 0.7);
-    padding: 20px;
+    padding: 1.5rem;
     border-radius: 10px;
     color: #fff;
 }
 
 .trainingProgress .inProgress .layerName {
-    font-size: 28px;
-    margin-bottom: 10px;
+    font-size: 1.75rem;
+    margin-bottom: 0.75rem;
 }
 
 .trainingProgress .inProgress .layerDesc {
-    font-size: 16px;
+    font-size: 1rem;
     color: rgba(255, 255, 255, 0.8);
 }
 
@@ -261,45 +263,63 @@ body {
 .trainingProgress .trainingCompleted .layer {
     text-align: center;
     background: rgba(76, 175, 80, 0.7);
-    padding: 20px;
+    padding: 1.5rem;
     border-radius: 10px;
     color: #fff;
 }
 
 .trainingProgress .trainingCompleted .layerName {
-    font-size: 28px;
-    margin-bottom: 10px;
+    font-size: 1.75rem;
+    margin-bottom: 0.75rem;
 }
 
 .trainingProgress .trainingCompleted .layerDesc {
-    font-size: 16px;
+    font-size: 1rem;
     color: rgba(255, 255, 255, 0.8);
+}
+
+@media (max-width: 992px) {
+    .datasetProperties .filename .fileNameInput {
+        max-width: 250px;
+    }
+    .datasetProperties .dfHead, .closePriceGraphHolder {
+        max-height: 200px;
+    }
 }
 
 @media (max-width: 768px) {
     .datasetProperties, .trainingProgress {
-        width: 100%;
-        height: 350px;
-    }
-    .datasetProperties .filename .fileNameInput {
-        width: 60%;
+        width: 95%;
+        min-height: 300px;
     }
     .datasetProperties .dfHead, .closePriceGraphHolder {
-        height: 200px;
+        max-height: 150px;
+    }
+    .datasetProperties .placeholder .layerName, .trainingProgress .placeholder .layerName, .trainingProgress .inProgress .layerName, .trainingProgress .trainingCompleted .layerName {
+        font-size: 1.5rem;
+    }
+    .datasetProperties .placeholder .layerDesc, .trainingProgress .placeholder .layerDesc, .trainingProgress .inProgress .layerDesc, .trainingProgress .trainingCompleted .layerDesc {
+        font-size: 0.9rem;
     }
     .datasetProperties .startTraining, .upload-btn {
-        font-size: 16px;
-        padding: 10px 20px;
+        font-size: 0.9rem;
+        padding: 0.5rem 1.5rem;
     }
 }
 
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-@keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-    100% { transform: scale(1); }
+@media (max-width: 576px) {
+    .datasetProperties, .trainingProgress {
+        width: 100%;
+        padding: 1rem;
+    }
+    .datasetProperties .filename .fileNameInput {
+        max-width: 200px;
+        font-size: 0.9rem;
+    }
+    .datasetProperties .dfHead .table {
+        font-size: 0.8rem;
+    }
+    #closePriceGraph {
+        height: 200px !important;
+    }
 }

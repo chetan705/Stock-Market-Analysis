@@ -1,41 +1,238 @@
 <html>
     <head>
         <title>Stock Price Prediction</title>
-
         <meta charset="utf-8">
         <link rel="icon" href="/static/favicon.ico" type="image/gif" sizes="16x16">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-
         <link rel="stylesheet" href="/static/bootstrap.min.css">
         <script src="/static/jquery.min.js"></script>
         <script src="/static/bootstrap.min.js"></script>
-
         <script src="/static/chart.js"></script>
-
         <link rel="stylesheet" href="/header.css">
-
+        <link rel="stylesheet" href="./training.css">
         <script>
-        
             var pages = {
                 "home": "home.html",
                 "training": "training.html",
                 "predictions": "predictions.html",
             }
-        
             function changePage(e) {
                 var page = e.getAttribute("page");
                 window.location = pages[page];
             }
-        
+            var checkTrainingStatusVar = null;
+            function isInt(n){
+                return Number(n) === n && n % 1 === 0;
+            }
+            function isFloat(n){
+                return Number(n) === n && n % 1 !== 0;
+            }
+            function loaddfHead(cols, tableData) {
+                var head = `<thead><tr>`;
+                for (var col in cols) {
+                    head += `<th scope="col">` + cols[col] + `</th>`;
+                }
+                head += `</tr></thead>`;
+                var body = `<tbody>`;
+                for (var row in tableData) {
+                    var rowHTML = `<tr>`;
+                    for (col in tableData[row]) {
+                        if (isFloat(tableData[row][col]) || isInt(tableData[row][col])) rowHTML += `<td>` + tableData[row][col].toFixed(2) + `</td>`;
+                        else rowHTML += `<td>` + tableData[row][col] + `</td>`;
+                    }
+                    rowHTML += `</tr>`;
+                    body += rowHTML;
+                }
+                body += `</tbody>`;
+                var table = `<table style="height: 100px!important" class="table table-hover">` + head + body + `</table>`;
+                $('.dfHead').html(table);
+            }
+            function plotGraph(chartId, dfDateVals, rawData, showAnimation) {
+                var data = [];
+                var animation = false;
+                for (let i = 0; i < rawData.length; i++) {
+                    data.push({x: i, y: rawData[i]});
+                }
+                if (showAnimation) {
+                    const totalDuration = 3000;
+                    const delayBetweenPoints = totalDuration / data.length;
+                    const previousY = (ctx) => ctx.index === 0 ? ctx.chart.scales.y.getPixelForValue(100) : ctx.chart.getDatasetMeta(ctx.datasetIndex).data[ctx.index - 1].getProps(['y'], true).y;
+                    animation = {
+                        x: {
+                            type: 'number',
+                            easing: 'linear',
+                            duration: delayBetweenPoints,
+                            from: NaN,
+                            delay(ctx) {
+                                if (ctx.type !== 'data' || ctx.xStarted) {
+                                    return 0;
+                                }
+                                ctx.xStarted = true;
+                                return ctx.index * delayBetweenPoints;
+                            }
+                        },
+                        y: {
+                            type: 'number',
+                            easing: 'linear',
+                            duration: delayBetweenPoints,
+                            from: previousY,
+                            delay(ctx) {
+                                if (ctx.type !== 'data' || ctx.yStarted) {
+                                    return 0;
+                                }
+                                ctx.yStarted = true;
+                                return ctx.index * delayBetweenPoints;
+                            }
+                        }
+                    };
+                }
+                const config = {
+                    type: 'line',
+                    data: {
+                        datasets: [{
+                            borderColor: "#3aa4eb",
+                            borderWidth: 1,
+                            radius: 0,
+                            data: data,
+                        }]
+                    },
+                    options: {
+                        animation,
+                        interaction: {
+                            intersect: false
+                        },
+                        plugins: {
+                            legend: false
+                        },
+                        scales: {
+                            x: {
+                                type: 'category',
+                                labels: dfDateVals
+                            }
+                        }
+                    }
+                };
+                var myChart = new Chart(
+                    document.getElementById(chartId),
+                    config
+                );
+                return myChart;
+            }
+            function loadDataset(res) {
+                $('.fileNameInput').val(res.fileName);
+                loaddfHead(res.cols, res.dfColVals);
+                $('.closePriceGraphHolder').html(`<canvas id="closePriceGraph"></canvas>`);
+                plotGraph('closePriceGraph', res.dfDateVals, res.dfCloseVals, false);
+                $('.datasetProperties .placeholder').hide();
+            }
+            function checkTrainingStatus() {
+                checkTrainingStatusVar = setInterval(() => {
+                    $.ajax({
+                        url: '/api/trainingStatus',
+                        method: 'post',
+                        success: (res) => {
+                            console.log(res);
+                            $('.trainingProgress .inProgress .layerDesc').html("Training " + Math.round((res.epochs/res.totalEpochs)*100) + "%");
+                            if (res.status != "training") {
+                                stopTrainingStatusCheck();
+                            }
+                        },
+                        error: (xhr, status, error) => {
+                            console.error("Training status check failed:", error);
+                            stopTrainingStatusCheck();
+                        }
+                    });
+                }, 1000);
+            }
+            function stopTrainingStatusCheck() {
+                clearInterval(checkTrainingStatusVar);
+                $.ajax({
+                    url: '/api/trainingStatus',
+                    method: 'post',
+                    success: (res) => {
+                        console.log(res);
+                        if (res.status === "trainingCompleted") {
+                            $('.trainingProgress .inProgress').hide();
+                            $('.trainingProgress .trainingCompleted').show();
+                        } else {
+                            $('.trainingProgress .inProgress').hide();
+                            $('.trainingProgress .placeholder').show();
+                        }
+                    }
+                });
+            }
+            $(document).ready(() => {
+                $('.upload-btn').on('click', function() {
+                    $('.selectFile').click();
+                });
+                $('.selectFile').change(() => {
+                    var file = $('.selectFile')[0].files[0];
+                    var extension = file.name.substring(file.name.lastIndexOf(".")+1);
+                    if (extension != "csv") {
+                        alert("Only CSV files are accepted as training data");
+                        return;
+                    }
+                    var formData = new FormData();
+                    formData.append('file', file);
+                    $.ajax({
+                        url: '/api/upload',
+                        type: "POST",
+                        processData: false,
+                        contentType: false,
+                        data: formData,
+                        success: (res) => {
+                            console.log(res);
+                            loadDataset(res);
+                        },
+                        error: (res) => {
+                            console.error("Upload failed:", res);
+                            $('.datasetProperties .placeholder').show();
+                        }
+                    });
+                });
+                $('.startTraining').click(() => {
+                    $('.trainingProgress .placeholder').hide();
+                    $('.trainingProgress .trainingCompleted').hide();
+                    $.ajax({
+                        url: '/api/startTraining',
+                        method: "POST",
+                        data: {"fileName": $('.fileNameInput').val()},
+                        success: (res) => {
+                            console.log(res);
+                        },
+                        error: (xhr, status, error) => {
+                            console.error("Training failed:", error);
+                            $('.trainingProgress .inProgress').hide();
+                            $('.trainingProgress .placeholder').show();
+                        }
+                    });
+                    checkTrainingStatus();
+                });
+                $('.hamburger').on('click', function() {
+                    $('.navbar').toggleClass('active');
+                });
+                $.ajax({
+                    url: '/api/trainingStatus',
+                    method: 'post',
+                    success: (res) => {
+                        if (res.status == "training") {
+                            loadDataset(res);
+                            $('.trainingProgress .placeholder').hide();
+                            $('.trainingProgress .trainingCompleted').hide();
+                            checkTrainingStatus();
+                        }
+                    }
+                });
+            });
         </script>
-
     </head>
     <body>
         <div id="header">
             <div class="container-fluid">
-                <div class="row">
-                    <div class="col-sm-4 header-title">Stock Price Prediction</div>
-                    <div class="col-sm-8">
+                <div class="row align-items-center">
+                    <div class="col-8 col-sm-4 header-title">Stock Price Prediction</div>
+                    <div class="col-4 col-sm-8 text-right">
+                        <div class="hamburger">☰</div>
                         <div class="navbar">
                             <div onclick="changePage(this)" page="home" class="nav-item">Home</div>
                             <div onclick="changePage(this)" page="training" class="nav-item active">Training</div>
@@ -45,15 +242,11 @@
                 </div>
             </div>
         </div>
-
         <div id="content">
-            <link rel="stylesheet" href="./training.css">
-
             <div class="upload text-center mt-4">
                 <button class="btn btn-primary btn-lg upload-btn">New Training Data</button>
                 <input class="selectFile" type="file" />
             </div>
-
             <center>
                 <div class="container-fluid datasetProperties mt-4">
                     <div class="placeholder">
@@ -67,17 +260,16 @@
                         <input class="fileNameInput form-control w-25" type="text" />
                     </div>
                     <div class="row">
-                        <div class="col-sm-7">
+                        <div class="col-12 col-sm-7">
                             <div class="dfHead"></div>
                         </div>
-                        <div class="col-sm-5 closePriceGraphHolder">
+                        <div class="col-12 col-sm-5 closePriceGraphHolder">
                             <canvas id="closePriceGraph"></canvas>
                         </div>
                     </div>
                     <button class="startTraining btn btn-success btn-lg mt-3">Start Training</button>
                 </div>
             </center>
-
             <center>
                 <div class="container-fluid trainingProgress mt-4">
                     <div class="placeholder">
@@ -101,243 +293,7 @@
                     </div>
                 </div>
             </center>
-
-            <script>
-
-                var checkTrainingStatusVar = null;
-
-                function isInt(n){
-                    return Number(n) === n && n % 1 === 0;
-                }
-
-                function isFloat(n){
-                    return Number(n) === n && n % 1 !== 0;
-                }
-
-                function loaddfHead(cols, tableData) {
-                    var head = `<thead><tr>`;   
-                    for (var col in cols) {
-                        head += `<th scope="col">` + cols[col] + `</th>`;
-                    }
-                    head += `</tr></thead>`;
-
-                    var body = `<tbody>`;
-                    for (var row in tableData) {
-                        var rowHTML = `<tr>`;
-                        for (col in tableData[row]) {
-                            if (isFloat(tableData[row][col]) || isInt(tableData[row][col])) rowHTML += `<td>` + tableData[row][col].toFixed(2) + `</td>`;
-                            else rowHTML += `<td>` + tableData[row][col] + `</td>`;
-                        }
-                        rowHTML += `</tr>`;
-                        body += rowHTML;
-                    }
-                    body += `</tbody>`;
-
-                    var table = `<table style="height: 100px!important" class="table table-hover">` + head + body + `</table>`;
-                    $('.dfHead').html(table);
-                }
-
-                
-                function plotGraph(chartId, dfDateVals, rawData, showAnimation) {
-                    var data = [];
-                    var animation = false;
-
-                    for (let i = 0; i < rawData.length; i++) {
-                        data.push({x: i, y: rawData[i]});
-                    }
-                    
-                    if (showAnimation) {
-                        const totalDuration = 3000;
-                        const delayBetweenPoints = totalDuration / data.length;
-                        const previousY = (ctx) => ctx.index === 0 ? ctx.chart.scales.y.getPixelForValue(100) : ctx.chart.getDatasetMeta(ctx.datasetIndex).data[ctx.index - 1].getProps(['y'], true).y;
-                        animation = {
-                            x: {
-                                type: 'number',
-                                easing: 'linear',
-                                duration: delayBetweenPoints,
-                                from: NaN,
-                                delay(ctx) {
-                                    if (ctx.type !== 'data' || ctx.xStarted) {
-                                        return 0;
-                                    }
-                                    ctx.xStarted = true;
-                                    return ctx.index * delayBetweenPoints;
-                                }
-                            },
-                            y: {
-                                type: 'number',
-                                easing: 'linear',
-                                duration: delayBetweenPoints,
-                                from: previousY,
-                                delay(ctx) {
-                                    if (ctx.type !== 'data' || ctx.yStarted) {
-                                        return 0;
-                                    }
-                                    ctx.yStarted = true;
-                                    return ctx.index * delayBetweenPoints;
-                                }
-                            }
-                        };
-                    }
-                    
-                    const config = {
-                        type: 'line',
-                        data: {
-                            datasets: [{
-                                borderColor: "#3aa4eb",
-                                borderWidth: 1,
-                                radius: 0,
-                                data: data,
-                            }]
-                        },
-                        options: {
-                            animation,
-                            interaction: {
-                                intersect: false
-                            },
-                            plugins: {
-                                legend: false
-                            },
-                            scales: {
-                                x: {
-                                    type: 'category',
-                                    labels: dfDateVals
-                                }
-                            }
-                        }
-                    };
-                    
-                    var myChart = new Chart(
-                        document.getElementById(chartId),
-                        config
-                    );
-
-                    return myChart;
-                }
-
-                function loadDataset(res) {
-                    $('.fileNameInput').val(res.fileName);
-                    loaddfHead(res.cols, res.dfColVals);
-
-                    $('.closePriceGraphHolder').html(`<canvas id="closePriceGraph"></canvas>`);
-                    plotGraph('closePriceGraph', res.dfDateVals, res.dfCloseVals, false);
-
-                    $('.datasetProperties .placeholder').hide();
-                }
-
-                function checkTrainingStatus() {
-                    checkTrainingStatusVar = setInterval(() => {
-                        $.ajax({
-                            url: '/api/trainingStatus',
-                            method: 'post',
-                            success: (res) => {
-                                console.log(res);
-                                $('.trainingProgress .inProgress .layerDesc').html("Training " + Math.round((res.epochs/res.totalEpochs)*100) + "%");
-                                if (res.status != "training") {
-                                    stopTrainingStatusCheck();
-                                }
-                            },
-                            error: (xhr, status, error) => {
-                                console.error("Training status check failed:", error);
-                                stopTrainingStatusCheck();
-                            }
-                        });
-                    }, 1000);
-                }
-
-                function stopTrainingStatusCheck() {
-                    clearInterval(checkTrainingStatusVar);
-
-                    $.ajax({
-                        url: '/api/trainingStatus',
-                        method: 'post',
-                        success: (res) => {
-                            console.log(res);
-                            if (res.status === "trainingCompleted") {
-                                $('.trainingProgress .inProgress').hide();
-                                $('.trainingProgress .trainingCompleted').show();
-                            } else {
-                                $('.trainingProgress .inProgress').hide();
-                                $('.trainingProgress .placeholder').show();
-                            }
-                        }
-                    });
-                }
-
-                $(document).ready(() => {
-                    $('.upload-btn').on('click', function() {
-                        $('.selectFile').click();
-                    });
-
-                    $('.selectFile').change(() => {
-                        var file = $('.selectFile')[0].files[0];
-                        var extension = file.name.substring(file.name.lastIndexOf(".")+1);
-
-                        if (extension != "csv") {
-                            alert("Only CSV files are accepted as training data");
-                            return;
-                        }
-
-                        var formData = new FormData();
-                        formData.append('file', file);
-
-                        $.ajax({
-                            url: '/api/upload',
-                            type: "POST",
-                            processData: false,
-                            contentType: false,
-                            data: formData,
-                            success: (res) => {
-                                console.log(res);
-                                loadDataset(res);
-                            },
-                            error: (res) => {
-                                console.error("Upload failed:", res);
-                                $('.datasetProperties .placeholder').show();
-                            }
-                        });
-                    });
-
-                    $('.startTraining').click(() => {
-                        $('.trainingProgress .placeholder').hide();
-                        $('.trainingProgress .trainingCompleted').hide();
-                        
-                        $.ajax({
-                            url: '/api/startTraining',
-                            method: "POST",
-                            data: {"fileName": $('.fileNameInput').val()},
-                            success: (res) => {
-                                console.log(res);
-                            },
-                            error: (xhr, status, error) => {
-                                console.error("Training failed:", error);
-                                $('.trainingProgress .inProgress').hide();
-                                $('.trainingProgress .placeholder').show();
-                            }
-                        });
-
-                        checkTrainingStatus();
-                    });
-
-                    $.ajax({
-                        url: '/api/trainingStatus',
-                        method: 'post',
-                        success: (res) => {
-                            if (res.status == "training") {
-                                loadDataset(res);
-
-                                $('.trainingProgress .placeholder').hide();
-                                $('.trainingProgress .trainingCompleted').hide();
-
-                                checkTrainingStatus();
-                            }
-                        }
-                    });
-                });
-                    
-            </script>
         </div>
-
         <script src="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.js"></script>
     </body>
 </html>

@@ -1,18 +1,14 @@
 <html>
     <head>
         <title>Stock Price Prediction</title>
-
         <meta charset="utf-8">
         <link rel="icon" href="../static/favicon.ico" type="image/gif" sizes="16x16">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-
         <link rel="stylesheet" href="../static/bootstrap.min.css">
         <script src="../static/jquery.min.js"></script>
         <script src="../static/bootstrap.min.js"></script>
-
         <link rel="stylesheet" href="../header.css">
         <link rel="stylesheet" href="./home.css">
-
         <script>
             var pages = {
                 "home": "home.html",
@@ -30,16 +26,19 @@
                     $(this).toggleClass('active');
                     $(this).find('.accordion-content').slideToggle(300);
                 });
+                $('.hamburger').on('click', function() {
+                    $('.navbar').toggleClass('active');
+                });
             });
         </script>
-
     </head>
     <body>
         <div id="header">
             <div class="container-fluid">
-                <div class="row">
-                    <div class="col-sm-4 header-title">Stock Price Prediction</div>
-                    <div class="col-sm-8">
+                <div class="row align-items-center">
+                    <div class="col-8 col-sm-4 header-title">Stock Price Prediction</div>
+                    <div class="col-4 col-sm-8 text-right">
+                        <div class="hamburger">☰</div>
                         <div class="navbar">
                             <div onclick="changePage(this)" page="home" class="nav-item active">Home</div>
                             <div onclick="changePage(this)" page="training" class="nav-item">Training</div>
@@ -49,7 +48,6 @@
                 </div>
             </div>
         </div>
-
         <div id="content">
             <div class="hero-section">
                 <div class="hero-overlay"></div>
@@ -60,7 +58,6 @@
                     <a href="#" onclick="changePage(this)" page="training" class="btn btn-custom hero-btn">Launch Platform</a>
                 </div>
             </div>
-
             <div class="container-fluid about-project-section py-5">
                 <h2 class="section-title text-center">About the Project</h2>
                 <div class="row justify-content-center">
@@ -99,7 +96,6 @@
                     </div>
                 </div>
             </div>
-
             <div class="container-fluid about-me-section py-5">
                 <h2 class="section-title text-center">About Me</h2>
                 <div class="row justify-content-center">
@@ -126,7 +122,6 @@
                     </div>
                 </div>
             </div>
-
             <div class="container-fluid featured-stocks-section py-5">
                 <h2 class="section-title text-center">Featured Stocks</h2>
                 <div class="row justify-content-center stock-grid">
@@ -157,7 +152,6 @@
                 </div>
             </div>
         </div>
-
         <script src="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.js"></script>
     </body>
 </html>
